@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include "picross.h"
+#include "cwebserv.h"
 
 void _stradd(char **buf, size_t *bufend, size_t *buflen,
         const char *addition, size_t addlen) {
@@ -559,14 +560,14 @@ char *generate(char *query, char *path, int *final_length) {
 
     if (is_editor) {
         int pgsize = sizeof(play_editing_game) + 50 + boardsize;
-        char *play_game_tmp = malloc(pgsize); //should be long enough
+        char *play_game_tmp = alloca(pgsize); //should be long enough
         errcode = snprintf(play_game_tmp, pgsize, play_editing_game, width,
                 height, board);
         if (errcode < 0 || errcode > pgsize) {
             printf("error %i for snprintf #8\n", errcode);
         }
-        stradd(buf, bufend, buflen, play_game_tmp, pgsize);
-        free(play_game_tmp);
+        stradd(buf, bufend, buflen, play_game_tmp,
+                strnlen(play_game_tmp, pgsize));
         stradd(buf, bufend, buflen, editor_help, sizeof(editor_help));
     } else {
         stradd(buf, bufend, buflen, player_help, sizeof(player_help));
